@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% from 'macros/forms.html' import csrf %}
+
+{% block title %}首页 | {{ super() }}{% endblock %}
+
+{% block content %}
+<!-- 轮播图 -->
+<div id="mainCarousel" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-indicators">
+        <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+        <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+        <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+    </div>
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <div class="d-block w-100 bg-primary text-white" style="height: 400px;">
+                <div class="d-flex align-items-center justify-content-center h-100">
+                    <div class="text-center">
+                        <h1>欢迎来到安全电商平台</h1>
+                        <p class="lead">提供安全可靠的网上购物体验</p>
+                        <a href="#new-products" class="btn btn-light btn-lg">浏览商品</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="carousel-item">
+            <div class="d-block w-100 bg-success text-white" style="height: 400px;">
+                <div class="d-flex align-items-center justify-content-center h-100">
+                    <div class="text-center">
+                        <h1>限时特惠</h1>
+                        <p class="lead">多款商品限时折扣中，不容错过！</p>
+                        <a href="{{ url_for('shop.category', category_id=1) }}" class="btn btn-light btn-lg">查看详情</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="carousel-item">
+            <div class="d-block w-100 bg-danger text-white" style="height: 400px;">
+                <div class="d-flex align-items-center justify-content-center h-100">
+                    <div class="text-center">
+                        <h1>新品上市</h1>
+                        <p class="lead">最新产品已经上架，赶快来选购吧！</p>
+                        <a href="{{ url_for('shop.category', category_id=2) }}" class="btn btn-light btn-lg">立即查看</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#mainCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#mainCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+</div>
+
+<!-- 商品分类 -->
+<div class="container mt-5">
+    <h2 class="text-center mb-4">商品分类</h2>
+    <div class="row">
+        {% for category in categories %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h3>{{ category.name }}</h3>
+                    <p class="text-muted">{{ category.description }}</p>
+                    <a href="{{ url_for('shop.category', category_id=category.id) }}" class="btn btn-outline-primary">浏览商品</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- 新品上市 -->
+<div class="container mt-5" id="new-products">
+    <h2 class="text-center mb-4">新品上市</h2>
+    <div class="row">
+        {% for product in latest_products %}
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 product-card">
+                {% if product.image %}
+                <img src="{{ product.image }}" class="card-img-top product-image" alt="{{ product.name }}">
+                {% else %}
+                <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
+                    <span class="text-muted">暂无图片</span>
+                </div>
+                {% endif %}
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text text-muted">{{ product.description|truncate(60) }}</p>
+                    <div class="mt-auto">
+                        <p class="product-price">¥{{ "%.2f"|format(product.price) }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{{ url_for('shop.product_detail', product_id=product.id) }}" class="btn btn-outline-primary btn-sm">查看详情</a>
+                            <form method="post" action="{{ url_for('cart.add_to_cart') }}" class="d-inline">
+    {{ csrf() }}
+                                <input type="hidden" name="product_id" value="{{ product.id }}">
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-shopping-cart"></i> 加入购物车
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- 优势展示 -->
+<div class="container mt-5">
+    <h2 class="text-center mb-4">我们的优势</h2>
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-shield-alt fa-4x text-primary mb-3"></i>
+                    <h4>安全保障</h4>
+                    <p>全方位的安全措施，保护您的个人信息和交易安全。</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-shipping-fast fa-4x text-success mb-3"></i>
+                    <h4>快速配送</h4>
+                    <p>高效的物流系统，确保您的订单能够及时送达。</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-headset fa-4x text-info mb-3"></i>
+                    <h4>优质客服</h4>
+                    <p>专业的客服团队，为您提供全天候的服务支持。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}购物车 | 安全电商{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4">您的购物车</h1>
+
+    {% if cart_items %}
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>商品</th>
+                    <th>单价</th>
+                    <th>数量</th>
+                    <th>小计</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            {% if item.image %}
+                                <img src="{{ url_for('static', filename='uploads/' + item.image) }}" class="img-thumbnail" width="60" alt="{{ item.name }}">
+                            {% else %}
+                                 <div class="bg-light d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                      <i class="bi bi-image text-secondary"></i>
+                                 </div>
+                            {% endif %}
+                            <div>
+                                <h6>{{ item.name }}</h6>
+                                <small class="text-muted">商品ID: {{ item.id }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>¥{{ item.price }}</td>
+                    <td>
+                        <div class="input-group" style="width: 120px;">
+                            <button class="btn btn-outline-secondary btn-sm" type="button" onclick="updateQuantity({{ item.id }}, -1)">-</button>
+                            <input type="text" class="form-control text-center" value="{{ item.quantity }}" readonly>
+                            <button class="btn btn-outline-secondary btn-sm" type="button" onclick="updateQuantity({{ item.id }}, 1)">+</button>
+                        </div>
+                    </td>
+                    <td>¥{{ item.subtotal }}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" onclick="removeFromCart({{ item.id }})">
+                            <i class="bi bi-trash"></i> 删除
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3" class="text-end"><strong>总计:</strong></td>
+                    <td><strong>¥{{ total }}</strong></td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-between mt-4">
+        <a href="{{ url_for('shop.index') }}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> 继续购物
+        </a>
+        <!-- 修改这里，将checkout.checkout改为cart.checkout -->
+        <a href="{{ url_for('cart.checkout') }}" class="btn btn-primary">
+            结算 <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <p>您的购物车是空的。</p>
+        <a href="{{ url_for('shop.index') }}" class="btn btn-primary mt-2">
+            开始购物
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    function updateQuantity(productId, change) {
+        fetch('/cart/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                product_id: productId,
+                change: change
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('更新失败: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('操作失败，请重试');
+        });
+    }
+
+    function removeFromCart(productId) {
+        if (confirm('确定要从购物车中删除此商品吗?')) {
+            fetch('/cart/remove', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    product_id: productId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('删除失败: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('操作失败，请重试');
+            });
+        }
+    }
+</script>
+{% endblock %}

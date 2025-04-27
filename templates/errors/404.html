@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}页面未找到 | {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="error-page mb-4">
+                <h1 class="display-1 text-primary">404</h1>
+                <i class="fas fa-search fa-5x text-muted mb-4"></i>
+                <h2>页面未找到</h2>
+                <p class="lead text-muted">抱歉，您要访问的页面不存在或已被移除。</p>
+            </div>
+
+            <div class="card border-light mb-4">
+                <div class="card-body">
+                    <h5>可能的原因:</h5>
+                    <ul class="text-start">
+                        <li>输入的URL地址有误</li>
+                        <li>该页面已被移动或删除</li>
+                        <li>您可能点击了失效的链接</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-block">
+                <a href="{{ url_for('shop.index') }}" class="btn btn-primary me-md-2">
+                    <i class="fas fa-home me-1"></i> 返回首页
+                </a>
+                <button onclick="history.back()" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> 返回上一页
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 推荐商品 -->
+    <div class="mt-5">
+        <h3 class="text-center mb-4">您可能感兴趣的商品</h3>
+        <div class="row">
+            {% for i in range(4) %}
+            <div class="col-md-3 mb-4">
+                <div class="card product-card h-100">
+                    <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 180px;">
+                        <i class="fas fa-box fa-3x text-muted"></i>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">推荐商品</h5>
+                        <p class="product-price">¥99.00</p>
+                        <a href="{{ url_for('shop.index') }}" class="btn btn-sm btn-outline-primary w-100">查看商品</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+.error-page {
+    padding: 40px 0;
+}
+</style>
+{% endblock %}

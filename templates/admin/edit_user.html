@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% from 'macros/forms.html' import csrf %}
+
+{% block title %}编辑用户 | {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>编辑用户: {{ user.username }}</h2>
+        <div>
+            <a href="{{ url_for('admin.users') }}" class="btn btn-outline-secondary">
+                返回用户列表
+            </a>
+        </div>
+    </div>
+
+    {% include 'partials/_flash.html' %}
+
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            用户信息
+        </div>
+        <div class="card-body">
+            <form method="POST">
+    {{ csrf() }}
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="username" class="form-label">用户名</label>
+                        <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="email" class="form-label">邮箱</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="password" class="form-label">新密码 <span class="text-muted">(留空则不修改)</span></label>
+                        <input type="password" class="form-control" id="password" name="password">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="confirm_password" class="form-label">确认新密码</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+                    </div>
+                </div>
+
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="is_admin" name="is_admin" {% if user.is_admin %}checked{% endif %}>
+                    <label class="form-check-label" for="is_admin">授予管理员权限</label>
+                </div>
+
+                <div class="mb-3">
+                    <p class="text-muted">
+                        <i class="fas fa-info-circle"></i> 账户创建时间: {{ user.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+                    </p>
+                </div>
+
+                {% if user.id == current_user.id %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> 注意：您正在编辑自己的账户。如果取消自己的管理员权限，将无法再访问管理后台。
+                </div>
+                {% endif %}
+
+                <button type="submit" class="btn btn-primary">保存修改</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header bg-info text-white">
+            用户订单
+        </div>
+        <div class="card-body">
+            {% set orders = user.orders %}
+            {% if orders %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>订单号</th>
+                            <th>金额</th>
+                            <th>状态</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>#{{ order.id }}</td>
+                            <td>¥{{ "%.2f"|format(order.total) }}</td>
+                            <td>
+                                {% if order.status == 'pending' %}
+                                <span class="badge bg-warning text-dark">待处理</span>
+                                {% elif order.status == 'completed' %}
+                                <span class="badge bg-success">已完成</span>
+                                {% elif order.status == 'cancelled' %}
+                                <span class="badge bg-danger">已取消</span>
+                                {% else %}
+                                <span class="badge bg-secondary">{{ order.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                <a href="{{ url_for('admin.order_detail', order_id=order.id) }}" class="btn btn-sm btn-outline-primary">查看</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">该用户暂无订单记录</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 密码确认验证 (仅在输入密码时验证)
+    document.querySelector('form').addEventListener('submit', function(event) {
+        var password = document.getElementById('password').value;
+        var confirmPassword = document.getElementById('confirm_password').value;
+
+        // 只有在设置了新密码的情况下才验证
+        if (password && password !== confirmPassword) {
+            event.preventDefault();
+            alert('两次输入的密码不匹配！');
+        }
+    });
+});
+</script>
+{% endblock %}

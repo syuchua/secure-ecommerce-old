@@ -1,0 +1,109 @@
+<header class="bg-white py-3 border-bottom">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-3 mb-3 mb-md-0">
+                <a href="{{ url_for('shop.index') }}" class="text-dark text-decoration-none fs-4 fw-bold d-flex align-items-center">
+                    <i class="bi bi-shield-check me-2"></i>
+                    安全电商
+                </a>
+                <span class="text-muted small">持续为您提供安全购物体验</span>
+            </div>
+
+            <div class="col-md-5 mb-3 mb-md-0">
+                <form action="{{ url_for('shop.search') }}" method="get">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control" placeholder="搜索商品..." aria-label="搜索商品" value="{{ request.args.get('q', '') }}">
+                        <button class="btn btn-outline-secondary" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-md-4 text-end">
+                <div class="d-flex justify-content-end align-items-center">
+                    <a href="{{ url_for('cart.view_cart') }}" class="btn btn-outline-primary me-2 position-relative">
+                        <i class="bi bi-cart"></i>
+                        {% if session.get('cart') %}
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                {{ session.get('cart')|length }}
+                            </span>
+                        {% endif %}
+                    </a>
+
+                    {% if current_user.is_authenticated %}
+                        <div class="dropdown d-inline-block">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                {{ current_user.username }}
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}">
+                                    <i class="bi bi-person"></i> 个人资料
+                                </a></li>
+
+                                <li><a class="dropdown-item" href="{{ url_for('shop.index') }}">
+                                    <i class="bi bi-bag"></i> 我的订单
+                                </a></li>
+
+                                <li><a class="dropdown-item" href="{{ url_for('address.index') }}">
+                                    <i class="bi bi-geo-alt"></i> 收货地址
+                                </a></li>
+
+                                <li><hr class="dropdown-divider"></li>
+
+                                {% if current_user.is_admin %}
+                                <li><a class="dropdown-item" href="{{ url_for('admin.index') }}">
+                                    <i class="bi bi-speedometer"></i> 管理中心
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                {% endif %}
+
+                                <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">
+                                    <i class="bi bi-box-arrow-right"></i> 退出登录
+                                </a></li>
+                            </ul>
+                        </div>
+                    {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary me-2">登录</a>
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary">注册</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link {% if active_page == 'home' %}active{% endif %}" href="{{ url_for('shop.index') }}">首页</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="categoriesDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        商品分类
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="categoriesDropdown">
+                        {% for category in categories %}
+                            <li><a class="dropdown-item" href="{{ url_for('shop.category', category_id=category.id) }}">{{ category.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <!-- 修改这里：将shop.about改为shop.index -->
+                    <a class="nav-link {% if active_page == 'about' %}active{% endif %}" href="{{ url_for('shop.index') }}">关于我们</a>
+                </li>
+                <li class="nav-item">
+                    <!-- 修改这里：将shop.contact改为shop.index -->
+                    <a class="nav-link {% if active_page == 'contact' %}active{% endif %}" href="{{ url_for('shop.index') }}">联系我们</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

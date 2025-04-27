@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}联系我们 | 安全电商{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4">联系我们</h1>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">联系方式</h2>
+
+                    <div class="mb-3">
+                        <h5><i class="bi bi-envelope me-2"></i>电子邮件</h5>
+                        <p>customer-service@secure-ecommerce.com</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h5><i class="bi bi-telephone me-2"></i>电话</h5>
+                        <p>+86 123-4567-8910</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h5><i class="bi bi-geo-alt me-2"></i>地址</h5>
+                        <p>太原理工大学</p>
+                    </div>
+
+                    <div>
+                        <h5><i class="bi bi-clock me-2"></i>工作时间</h5>
+                        <p>周一至周五: 9:00 - 18:00<br>
+                        周六至周日: 10:00 - 16:00</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">给我们留言</h2>
+                    <p class="text-muted mb-4">请填写以下表单，我们会尽快回复您。</p>
+
+                    <form>
+                        <div class="mb-3">
+                            <label for="name" class="form-label">您的姓名</label>
+                            <input type="text" class="form-control" id="name" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">电子邮箱</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">主题</label>
+                            <input type="text" class="form-control" id="subject">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="message" class="form-label">留言内容</label>
+                            <textarea class="form-control" id="message" rows="5" required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">提交留言</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

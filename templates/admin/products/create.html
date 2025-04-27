@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% from 'macros/forms.html' import csrf %}
+
+{% block title %}添加商品 | {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>添加新商品</h2>
+        <div>
+            <a href="{{ url_for('admin.products') }}" class="btn btn-outline-secondary">
+                返回商品列表
+            </a>
+        </div>
+    </div>
+
+    {% include 'partials/_flash.html' %}
+
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            商品信息
+        </div>
+        <div class="card-body">
+            <form method="POST" enctype="multipart/form-data">
+    {{ csrf() }}
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="name" class="form-label">商品名称</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label for="price" class="form-label">价格</label>
+                        <div class="input-group">
+                            <span class="input-group-text">¥</span>
+                            <input type="number" class="form-control" id="price" name="price" step="0.01" min="0" required>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label for="stock" class="form-label">库存</label>
+                        <input type="number" class="form-control" id="stock" name="stock" min="0" value="0" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="category_id" class="form-label">分类</label>
+                    <select class="form-select" id="category_id" name="category_id">
+                        <option value="">-- 选择分类 --</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">商品描述</label>
+                    <textarea class="form-control" id="description" name="description" rows="5"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="image" class="form-label">商品图片</label>
+                    <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                    <div class="form-text">支持的格式: PNG, JPG, JPEG, GIF，大小不超过2MB</div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">添加商品</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

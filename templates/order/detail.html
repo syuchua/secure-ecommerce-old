@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}订单详情 #{{ order.id }} | 安全电商{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>订单详情 <small class="text-muted">#{{ order.id }}</small></h1>
+        <a href="{{ url_for('customer_orders.order_list') }}" class="btn btn-outline-secondary">
+             <i class="bi bi-arrow-left"></i> 返回我的订单
+        </a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">订单信息</h5>
+                <span class="badge
+                    {% if order.status == 'pending' %}bg-warning text-dark
+                    {% elif order.status == 'processing' %}bg-info
+                    {% elif order.status == 'shipped' %}bg-primary
+                    {% elif order.status == 'delivered' %}bg-success
+                    {% elif order.status == 'cancelled' %}bg-danger
+                    {% else %}bg-secondary{% endif %}
+                ">
+                    {{ {
+                        'pending': '待处理',
+                        'processing': '处理中',
+                        'shipped': '已发货',
+                        'delivered': '已送达',
+                        'cancelled': '已取消'
+                    }.get(order.status, order.status) }}
+                </span>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+    <p><strong>订单编号:</strong> #{{ order.id }}</p>
+    <p><strong>下单时间:</strong> {{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+    <p><strong>支付方式:</strong> {{ order.payment_method or '未选择' }}</p>
+</div>
+<div class="col-md-6">
+    <!-- 使用完整的地址字段 -->
+    <p><strong>配送地址:</strong> {{ order.shipping_address }}</p>
+    <p><strong>城市/省份:</strong> {{ order.shipping_city }}, {{ order.shipping_state }}</p>
+    <p><strong>支付状态:</strong> {{ {
+        'pending': '待支付',
+        'paid': '已支付',
+        'refunded': '已退款',
+        'failed': '支付失败'
+    }.get(order.payment_status, order.payment_status) }}</p>
+</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">订单商品</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped mb-0">
+                <thead>
+                    <tr>
+                        <th>商品</th>
+                        <th class="text-center">单价</th>
+                        <th class="text-center">数量</th>
+                        <th class="text-end">小计</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if item.product.image %}
+                                        <img src="{{ url_for('static', filename='uploads/' + item.product.image) }}" alt="{{ item.product_name }}" width="50" class="me-3">
+                                    {% else %}
+                                        <div class="bg-light d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                            <i class="bi bi-image text-secondary"></i>
+                                        </div>
+                                    {% endif %}
+                                    {{ item.product_name }}
+                                </div>
+                            </td>
+                            <td class="text-center">¥{{ item.price }}</td>
+                            <td class="text-center">{{ item.quantity }}</td>
+                            <td class="text-end">¥{{ (item.price * item.quantity)|round(2) }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot class="table-group-divider">
+                    <tr>
+                        <td colspan="3" class="text-end"><strong>订单总计</strong></td>
+                        <td class="text-end"><strong>¥{{ order.total }}</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

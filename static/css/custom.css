@@ -1,0 +1,140 @@
+/* 安全电商平台自定义样式 */
+
+/* 全局样式 */
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    color: #333;
+    background-color: #f8f9fa;
+}
+
+/* 导航栏样式 */
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+/* 商品卡片样式 */
+.product-card {
+    transition: transform 0.3s, box-shadow 0.3s;
+    margin-bottom: 20px;
+    height: 100%;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.product-image {
+    height: 200px;
+    object-fit: contain;
+    padding: 10px;
+}
+
+.product-price {
+    font-size: 1.25rem;
+    color: #e83e8c;
+    font-weight: bold;
+}
+
+/* 按钮样式 */
+.btn-outline-primary {
+    border-width: 2px;
+}
+
+/* 页脚样式 */
+footer {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e9ecef;
+}
+
+/* 购物车样式 */
+.cart-item {
+    border-bottom: 1px solid #eee;
+    padding: 15px 0;
+}
+
+/* 订单详情样式 */
+.order-status {
+    padding: 5px 10px;
+    border-radius: 20px;
+}
+
+/* 管理后台样式 */
+.admin-sidebar {
+    min-height: calc(100vh - 56px);
+    background-color: #343a40;
+}
+
+.admin-menu-item {
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+}
+
+.admin-menu-item:hover {
+    background-color: #495057;
+    color: #fff;
+}
+
+/* 用户资料页 */
+.profile-header {
+    background-color: #f1f8ff;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    border: 1px solid #d1e9ff;
+}
+
+/* 输入框焦点状态 */
+.form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    border-color: #80bdff;
+}
+
+/* 分类标签 */
+.category-badge {
+    background-color: #e9ecef;
+    padding: 5px 15px;
+    border-radius: 20px;
+    color: #495057;
+    text-decoration: none;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    display: inline-block;
+}
+
+.category-badge:hover {
+    background-color: #dee2e6;
+    color: #212529;
+}
+
+/* 产品详情页 */
+.product-gallery {
+    margin-bottom: 20px;
+}
+
+.product-details-price {
+    font-size: 2rem;
+    color: #e83e8c;
+    font-weight: bold;
+}
+
+.quantity-input {
+    width: 100px;
+}
+
+/* 警告/提示框 */
+.alert {
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+
+/* 订单时间线 */
+.timeline-badge {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

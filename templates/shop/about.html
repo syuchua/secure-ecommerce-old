@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}关于我们 | 安全电商{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4">关于我们</h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">安全电商平台</h2>
+                    <p class="card-text">
+                        安全电商平台是一个专注于提供安全、可靠购物体验的电子商务网站。
+                        我们致力于保障用户的信息安全和交易安全，为用户提供优质的购物服务。
+                    </p>
+
+                    <h3>我们的使命</h3>
+                    <p>
+                        为用户创造一个安全、便捷、放心的在线购物环境，保护用户隐私和数据安全。
+                    </p>
+
+                    <h3>我们的价值观</h3>
+                    <ul>
+                        <li><strong>安全至上</strong> - 用户数据安全是我们的首要任务</li>
+                        <li><strong>诚信透明</strong> - 在商品描述和价格方面保持透明</li>
+                        <li><strong>优质服务</strong> - 提供专业、及时的客户服务</li>
+                        <li><strong>持续创新</strong> - 不断改进我们的安全措施和用户体验</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">我们的团队</h3>
+                    <p>
+                        我们拥有一支专业的团队，包括安全专家、开发人员和客户服务人员，
+                        致力于为您提供最佳的购物体验。
+                    </p>
+
+                    <h4>联系我们</h4>
+                    <p>
+                        如果您有任何问题或建议，请随时 <a href="{{ url_for('shop.contact') }}">联系我们</a>。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

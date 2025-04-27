@@ -1,0 +1,353 @@
+{% extends 'base.html' %}
+
+{% block title %}订单详情 #{{ order.id }} | {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('shop.index') }}">首页</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('orders.list') }}">我的订单</a></li>
+            <li class="breadcrumb-item active" aria-current="page">订单 #{{ order.id }}</li>
+        </ol>
+    </nav>
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">订单详情 #{{ order.id }}</h5>
+                <div>
+                    {% if order.status == 'pending' %}
+                    <span class="badge bg-warning text-dark">待处理</span>
+                    {% elif order.status == 'completed' %}
+                    <span class="badge bg-success">已完成</span>
+                    {% elif order.status == 'cancelled' %}
+                    <span class="badge bg-danger">已取消</span>
+                    {% else %}
+                    <span class="badge bg-secondary">{{ order.status }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h6>订单信息</h6>
+                    <p class="mb-1">订单编号: #{{ order.id }}</p>
+                    <p class="mb-1">下单时间: {{ order.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                    <p class="mb-1">支付方式: {{ order.payment_method or '未指定' }}</p>
+                    <p class="mb-0">订单状态:
+                        {% if order.status == 'pending' %}
+                        <span class="badge bg-warning text-dark">待处理</span>
+                        {% elif order.status == 'completed' %}
+                        <span class="badge bg-success">已完成</span>
+                        {% elif order.status == 'cancelled' %}
+                        <span class="badge bg-danger">已取消</span>
+                        {% else %}
+                        <span class="badge bg-secondary">{{ order.status }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <h6>收货信息</h6>
+                    <p class="mb-1">收货人: {{ order.shipping_name }}</p>
+                    <p class="mb-1">联系电话: {{ order.shipping_phone }}</p>
+                    <p class="mb-0">收货地址: {{ order.shipping_address }}</p>
+                </div>
+            </div>
+
+            <h6>订单商品</h6>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>商品</th>
+                            <th>单价</th>
+                            <th>数量</th>
+                            <th class="text-end">小计</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order.items %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if item.product.image %}
+                                    <img src="{{ item.product.image }}" class="img-thumbnail me-2" width="50" alt="{{ item.product_name }}">
+                                    {% else %}
+                                    <div class="bg-light d-flex align-items-center justify-content-center me-2" style="width: 50px; height: 50px;">
+                                        <i class="fas fa-box text-muted"></i>
+                                    </div>
+                                    {% endif %}
+                                    <div>
+                                        <h6 class="mb-0">{{ item.product_name }}</h6>
+                                        <small class="text-muted">商品ID: {{ item.product_id }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>¥{{ "%.2f"|format(item.price) }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td class="text-end">¥{{ "%.2f"|format(item.price * item.quantity) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-end">商品总额:</td>
+                            <td class="text-end">¥{{ "%.2f"|format(order.total) }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="text-end">运费:</td>
+                            <td class="text-end">¥0.00</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="text-end"><strong>订单总额:</strong></td>
+                            <td class="text-end"><strong>¥{{ "%.2f"|format(order.total) }}</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="d-flex justify-content-between">
+                <a href="{{ url_for('orders.list') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left"></i> 返回订单列表
+                </a>
+
+                <div>
+                    {% if order.status == 'pending' %}
+                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#cancelOrderModal">
+                        <i class="fas fa-times"></i> 取消订单
+                    </button>
+                    {% endif %}
+
+                    {% if order.status == 'completed' %}
+                    <button type="button" class="btn btn-outline-primary">
+                        <i class="fas fa-star"></i> 评价商品
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary">
+                        <i class="fas fa-redo"></i> 申请售后
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 订单物流 -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">物流信息</h5>
+        </div>
+        <div class="card-body">
+            {% if order.status == 'completed' %}
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-badge bg-success"><i class="fas fa-check"></i></div>
+                    <div class="timeline-content">
+                        <h6 class="mb-1">订单已送达</h6>
+                        <p class="text-muted small">您的订单已经成功送达。</p>
+                        <p class="text-muted small">2025-04-24 08:30:00</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-badge bg-primary"><i class="fas fa-truck"></i></div>
+                    <div class="timeline-content">
+                        <h6 class="mb-1">订单配送中</h6>
+                        <p class="text-muted small">正在配送您的订单。</p>
+                        <p class="text-muted small">2025-04-23 14:20:00</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-badge bg-info"><i class="fas fa-box"></i></div>
+                    <div class="timeline-content">
+                        <h6 class="mb-1">订单已发货</h6>
+                        <p class="text-muted small">您的订单已经打包完成并发货。</p>
+                        <p class="text-muted small">2025-04-23 10:15:00</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-badge bg-secondary"><i class="fas fa-clipboard-check"></i></div>
+                    <div class="timeline-content">
+                        <h6 class="mb-1">订单已确认</h6>
+                        <p class="text-muted small">我们已经确认您的订单。</p>
+                        <p class="text-muted small">2025-04-22 18:45:00</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-badge bg-primary"><i class="fas fa-shopping-cart"></i></div>
+                    <div class="timeline-content">
+                        <h6 class="mb-1">订单已提交</h6>
+                        <p class="text-muted small">您的订单已成功提交。</p>
+                        <p class="text-muted small">{{ order.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                    </div>
+                </div>
+            </div>
+            {% elif order.status == 'pending' %}
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-badge bg-secondary"><i class="fas fa-clipboard-check"></i></div>
+                    <div class="timeline-content">
+                        <h6 class="mb-1">订单处理中</h6>
+                        <p class="text-muted small">我们正在处理您的订单。</p>
+                        <p class="text-muted small">{{ order.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-badge bg-primary"><i class="fas fa-shopping-cart"></i></div>
+                    <div class="timeline-content">
+                        <h6 class="mb-1">订单已提交</h6>
+                        <p class="text-muted small">您的订单已成功提交。</p>
+                        <p class="text-muted small">{{ order.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                    </div>
+                </div>
+            </div>
+            {% elif order.status == 'cancelled' %}
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-badge bg-danger"><i class="fas fa-times"></i></div>
+                    <div class="timeline-content">
+                        <h6 class="mb-1">订单已取消</h6>
+                        <p class="text-muted small">您的订单已被取消。</p>
+                        <p class="text-muted small">{{ order.updated_at.strftime('%Y-%m-%d %H:%M:%S') if order.updated_at else order.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-badge bg-primary"><i class="fas fa-shopping-cart"></i></div>
+                    <div class="timeline-content">
+                        <h6 class="mb-1">订单已提交</h6>
+                        <p class="text-muted small">您的订单已成功提交。</p>
+                        <p class="text-muted small">{{ order.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- 取消订单确认模态框 -->
+<div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-labelledby="cancelOrderModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelOrderModalLabel">确认取消订单</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>您确定要取消订单 #{{ order.id }} 吗？此操作无法撤销。</p>
+                <form id="cancelForm">
+                    <div class="mb-3">
+                        <label for="cancelReason" class="form-label">取消原因</label>
+                        <select class="form-select" id="cancelReason" name="cancel_reason">
+                            <option value="change_mind">我改变了主意</option>
+                            <option value="wrong_order">下错订单</option>
+                            <option value="better_price">找到更好的价格</option>
+                            <option value="too_long">配送时间太长</option>
+                            <option value="other">其他原因</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="otherReasonContainer" style="display: none;">
+                        <label for="otherReason" class="form-label">其他原因</label>
+                        <textarea class="form-control" id="otherReason" name="other_reason" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-danger" onclick="cancelOrder()">确认取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* 时间线样式 */
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: #e9ecef;
+    left: 20px;
+    margin-left: -1.5px;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.timeline-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.timeline-content {
+    margin-left: 60px;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    position: relative;
+}
+
+.timeline-content:before {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 10px 10px 10px 0;
+    border-color: transparent #f8f9fa transparent transparent;
+    left: -10px;
+    top: 10px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 取消原因下拉框变化时显示/隐藏其他原因输入框
+    const cancelReason = document.getElementById('cancelReason');
+    const otherReasonContainer = document.getElementById('otherReasonContainer');
+
+    if (cancelReason) {
+        cancelReason.addEventListener('change', function() {
+            if (this.value === 'other') {
+                otherReasonContainer.style.display = 'block';
+            } else {
+                otherReasonContainer.style.display = 'none';
+            }
+        });
+    }
+});
+
+// 取消订单函数
+function cancelOrder() {
+    // 在实际应用中，这里应该发送AJAX请求到服务器取消订单
+    // 假设成功后，刷新页面或重定向
+    alert('取消订单功能尚未实现。在实际应用中，这将向服务器发送取消订单请求。');
+
+    // 关闭模态框
+    const modal = bootstrap.Modal.getInstance(document.getElementById('cancelOrderModal'));
+    modal.hide();
+
+    // 重定向到订单列表页面或刷新当前页面
+    // window.location.href = "{{ url_for('orders.list') }}";
+}
+</script>
+{% endblock %}

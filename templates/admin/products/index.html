@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}商品管理 | {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>商品管理</h2>
+        <div>
+            <a href="{{ url_for('admin.create_product') }}" class="btn btn-success">
+                <i class="fas fa-plus"></i> 添加商品
+            </a>
+            <a href="{{ url_for('admin.index') }}" class="btn btn-outline-secondary">
+                返回仪表板
+            </a>
+        </div>
+    </div>
+
+    {% include 'partials/_flash.html' %}
+
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            商品列表
+        </div>
+        <div class="card-body">
+            {% if products %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>图片</th>
+                            <th>商品名称</th>
+                            <th>价格</th>
+                            <th>库存</th>
+                            <th>分类</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr>
+                            <td>{{ product.id }}</td>
+                            <td>
+                                {% if product.image %}
+                                <img src="{{ product.image }}" alt="{{ product.name }}" class="img-thumbnail" width="50">
+                                {% else %}
+                                <span class="text-muted">无图片</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ product.name }}</td>
+                            <td>¥{{ "%.2f"|format(product.price) }}</td>
+                            <td>{{ product.stock }}</td>
+                            <td>
+                                {% if product.category %}
+                                {{ product.category.name }}
+                                {% else %}
+                                <span class="text-muted">无分类</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{{ url_for('admin.edit_product', product_id=product.id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit"></i> 编辑
+                                    </a>
+                                    <a href="{{ url_for('admin.delete_product', product_id=product.id) }}" class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirm('确定要删除商品 {{ product.name }} 吗？')">
+                                        <i class="fas fa-trash"></i> 删除
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">暂无商品数据</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

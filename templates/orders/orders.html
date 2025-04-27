@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+
+{% block title %}我的订单 | {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>我的订单</h2>
+        <a href="{{ url_for('shop.index') }}" class="btn btn-outline-primary">
+            <i class="fas fa-shopping-bag me-1"></i> 去购物
+        </a>
+    </div>
+
+    {% include 'partials/_flash.html' %}
+
+    <!-- 订单筛选 -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="btn-group" role="group">
+                    <a href="{{ url_for('orders.list') }}" class="btn {% if not status %}btn-primary{% else %}btn-outline-primary{% endif %}">全部订单</a>
+                    <a href="{{ url_for('orders.list', status='pending') }}" class="btn {% if status == 'pending' %}btn-primary{% else %}btn-outline-primary{% endif %}">待处理</a>
+                    <a href="{{ url_for('orders.list', status='completed') }}" class="btn {% if status == 'completed' %}btn-primary{% else %}btn-outline-primary{% endif %}">已完成</a>
+                    <a href="{{ url_for('orders.list', status='cancelled') }}" class="btn {% if status == 'cancelled' %}btn-primary{% else %}btn-outline-primary{% endif %}">已取消</a>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-sort"></i> 排序
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ url_for('orders.list', sort='newest') }}">下单时间：从近到远</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('orders.list', sort='oldest') }}">下单时间：从远到近</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('orders.list', sort='price_high') }}">订单金额：从高到低</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('orders.list', sort='price_low') }}">订单金额：从低到高</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if orders %}
+        {% for order in orders %}
+        <div class="card mb-3">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="me-3">订单号: #{{ order.id }}</span>
+                    <span class="me-3">下单时间: {{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                </div>
+                <div>
+                    {% if order.status == 'pending' %}
+                    <span class="badge bg-warning text-dark">待处理</span>
+                    {% elif order.status == 'completed' %}
+                    <span class="badge bg-success">已完成</span>
+                    {% elif order.status == 'cancelled' %}
+                    <span class="badge bg-danger">已取消</span>
+                    {% else %}
+                    <span class="badge bg-secondary">{{ order.status }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- 订单商品 -->
+                    <div class="col-md-7">
+                        <div class="order-items">
+                            {% for item in order.items %}
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="flex-shrink-0 me-3">
+                                    {% if item.product.image %}
+                                    <img src="{{ item.product.image }}" class="img-thumbnail" width="60" alt="{{ item.product_name }}">
+                                    {% else %}
+                                    <div class="bg-light d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                        <i class="fas fa-box text-muted"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0">{{ item.product_name }}</h6>
+                                    <small class="text-muted">¥{{ "%.2f"|format(item.price) }} × {{ item.quantity }}</small>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    ¥{{ "%.2f"|format(item.price * item.quantity) }}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- 订单信息 -->
+                    <div class="col-md-5">
+                        <div class="order-info">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>收货人:</span>
+                                <span>{{ order.shipping_name }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>联系电话:</span>
+                                <span>{{ order.shipping_phone }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>支付方式:</span>
+                                <span>{{ order.payment_method or '未指定' }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>商品总额:</span>
+                                <span>¥{{ "%.2f"|format(order.total) }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <strong>订单总价:</strong>
+                                <strong class="text-danger">¥{{ "%.2f"|format(order.total) }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-end">
+                <a href="{{ url_for('orders.detail', order_id=order.id) }}" class="btn btn-outline-primary">
+                    <i class="fas fa-eye me-1"></i> 查看详情
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- 分页 -->
+        {% if pages > 1 %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if page > 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('orders.list', page=page-1, status=status, sort=sort) }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&laquo;</span>
+                </li>
+                {% endif %}
+
+                {% for i in range(1, pages + 1) %}
+                <li class="page-item {% if i == page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('orders.list', page=i, status=status, sort=sort) }}">{{ i }}</a>
+                </li>
+                {% endfor %}
+
+                {% if page < pages %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('orders.list', page=page+1, status=status, sort=sort) }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&raquo;</span>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+
+    {% else %}
+    <div class="text-center py-5 my-5">
+        <div class="mb-4">
+            <i class="fas fa-clipboard-list fa-5x text-muted"></i>
+        </div>
+        <h2>您还没有订单</h2>
+        <p class="text-muted">开始购物并创建您的第一个订单。</p>
+        <a href="{{ url_for('shop.index') }}" class="btn btn-primary mt-3">
+            <i class="fas fa-shopping-bag me-1"></i> 去购物
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

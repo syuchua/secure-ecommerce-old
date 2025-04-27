@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% from 'macros/forms.html' import csrf %}
+
+{% block title %}结算 | {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>结算</h2>
+
+    {% include 'partials/_flash.html' %}
+
+    <div class="row mt-4">
+        <div class="col-md-8">
+            <!-- 结算表单 -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">收货信息</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{{ url_for('checkout.place_order') }}">
+    {{ csrf() }}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="shipping_name" class="form-label">收货人姓名</label>
+                                <input type="text" class="form-control" id="shipping_name" name="shipping_name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="shipping_phone" class="form-label">联系电话</label>
+                                <input type="tel" class="form-control" id="shipping_phone" name="shipping_phone" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="shipping_address" class="form-label">详细地址</label>
+                            <textarea class="form-control" id="shipping_address" name="shipping_address" rows="3" required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="payment_method" class="form-label">支付方式</label>
+                            <select class="form-select" id="payment_method" name="payment_method" required>
+                                <option value="" disabled selected>请选择支付方式</option>
+                                <option value="alipay">支付宝</option>
+                                <option value="wechat">微信支付</option>
+                                <option value="credit">信用卡</option>
+                                <option value="cod">货到付款</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="save_info" name="save_info">
+                            <label class="form-check-label" for="save_info">保存收货信息</label>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="note" class="form-label">订单备注 <span class="text-muted">(可选)</span></label>
+                            <textarea class="form-control" id="note" name="note" rows="2"></textarea>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('cart.view_cart') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> 返回购物车
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check"></i> 提交订单
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- 订单摘要 -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">订单摘要</h5>
+                </div>
+                <div class="card-body">
+                    {% for item in cart_items %}
+                    <div class="d-flex justify-content-between align-items-center pb-2 mb-2 border-bottom">
+                        <div>
+                            <h6 class="mb-0">{{ item.product.name }}</h6>
+                            <small class="text-muted">¥{{ "%.2f"|format(item.product.price) }} × {{ item.quantity }}</small>
+                        </div>
+                        <span>¥{{ "%.2f"|format(item.subtotal) }}</span>
+                    </div>
+                    {% endfor %}
+
+                    <div class="d-flex justify-content-between mt-3">
+                        <span>商品金额</span>
+                        <span>¥{{ "%.2f"|format(total) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>运费</span>
+                        <span>¥0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between mt-3 pt-2 border-top">
+                        <strong>应付总额</strong>
+                        <strong class="text-danger">¥{{ "%.2f"|format(total) }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 购物保障 -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h6>购物保障</h6>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check-circle text-success me-2"></i>品质保证</li>
+                        <li><i class="fas fa-check-circle text-success me-2"></i>7天无理由退换</li>
+                        <li><i class="fas fa-check-circle text-success me-2"></i>安全支付</li>
+                        <li><i class="fas fa-check-circle text-success me-2"></i>隐私保护</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 客服支持 -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h6>需要帮助?</h6>
+                    <p class="mb-0">
+                        <i class="fas fa-phone-alt me-2"></i> 400-123-4567<br>
+                        <i class="fas fa-envelope me-2"></i> support@example.com
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

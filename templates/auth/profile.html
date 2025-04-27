@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% from 'macros/forms.html' import csrf %}
+
+{% block title %}个人资料 | 安全电商{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4">个人资料</h1>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">账户信息</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>用户名:</strong> {{ current_user.username }}</p>
+                    <p><strong>电子邮箱:</strong> {{ current_user.email }}</p>
+                    <p><strong>姓名:</strong> {{ current_user.firstname }} {{ current_user.lastname }}</p>
+                    <p><strong>注册时间:</strong> {{ current_user.created_at.strftime('%Y-%m-%d') }}</p>
+                    <p><strong>上次登录:</strong> {{ current_user.last_seen.strftime('%Y-%m-%d %H:%M') }}</p>
+                </div>
+                <div class="card-footer">
+                    <a href="{{ url_for('auth.edit_profile') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-pencil"></i> 编辑资料
+                    </a>
+                    <a href="{{ url_for('auth.change_password') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-lock"></i> 修改密码
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">我的订单</h5>
+                </div>
+                <div class="card-body">
+                    {% if current_user.orders %}
+                        <div class="mb-4">
+        <h3>最近订单</h3>
+        <div class="list-group">
+            {% for order in current_user.orders %}
+                <a href="{{ url_for('customer_orders.order_detail', order_id=order.id) }}" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">订单 #{{ order.id }}</h5>
+                        <small>{{ order.created_at.strftime('%Y-%m-%d') }}</small>
+                    </div>
+                    <p class="mb-1">状态: {{ order.status }}</p>
+                    <small>总计: ¥{{ order.total }}</small>
+                </a>
+            {% endfor %}
+        </div>
+        <div class="mt-2">
+            <a href="{{ url_for('customer_orders.order_list') }}" class="btn btn-outline-primary">查看全部订单</a>
+        </div>
+    </div>
+                    {% else %}
+                        <p class="text-muted">您还没有订单记录。</p>
+                        <a href="{{ url_for('shop.index') }}" class="btn btn-primary">
+                            <i class="bi bi-cart"></i> 去购物
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">我的收货地址</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-end mb-3">
+                        <a href="{{ url_for('address.index') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-geo-alt"></i> 管理我的地址
+                        </a>
+                    </div>
+
+                    {% if current_user.addresses %}
+                        <div class="list-group">
+                            {% for address in current_user.addresses %}
+                                <div class="list-group-item {% if address.is_default %}list-group-item-primary{% endif %}">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ address.recipient_name }}</h6>
+                                        {% if address.is_default %}
+                                            <span class="badge bg-primary">默认地址</span>
+                                        {% endif %}
+                                    </div>
+                                    <p class="mb-1">{{ address.province }} {{ address.city }} {{ address.district }}</p>
+                                    <p class="mb-1">{{ address.address }}</p>
+                                    <small class="text-muted">{{ address.phone }}</small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">您还没有添加收货地址。</p>
+                        <a href="{{ url_for('address.add') }}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> 添加地址
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

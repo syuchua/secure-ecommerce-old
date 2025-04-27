@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}服务器错误 | {{ super() }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="error-page mb-4">
+                <h1 class="display-1 text-danger">500</h1>
+                <i class="fas fa-exclamation-triangle fa-5x text-warning mb-4"></i>
+                <h2>服务器内部错误</h2>
+                <p class="lead text-muted">抱歉，服务器遇到了一些问题，无法完成您的请求。</p>
+            </div>
+
+            <div class="card border-light mb-4">
+                <div class="card-body">
+                    <h5>我们可以帮您:</h5>
+                    <ul class="text-start">
+                        <li>请尝试刷新页面或稍后再试</li>
+                        <li>如果问题持续存在，请联系我们的客服团队</li>
+                        <li>您可以返回首页继续浏览其他内容</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-block">
+                <a href="{{ url_for('shop.index') }}" class="btn btn-primary me-md-2">
+                    <i class="fas fa-home me-1"></i> 返回首页
+                </a>
+                <button onclick="history.back()" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> 返回上一页
+                </button>
+                <a href="#" class="btn btn-outline-info">
+                    <i class="fas fa-headset me-1"></i> 联系客服
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-8 text-center">
+            <div class="alert alert-info">
+                <h5 class="alert-heading">技术支持信息</h5>
+                <p>错误ID: {{ error_id|default('UNKNOWN') }}</p>
+                <p class="mb-0">我们的技术团队已经收到此错误的通知，并正在努力解决。</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.error-page {
+    padding: 40px 0;
+}
+</style>
+{% endblock %}

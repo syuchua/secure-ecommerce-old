@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}首页 | 安全电商{% endblock %}
+
+{% set active_page = 'home' %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- 轮播图 -->
+    <div class="carousel slide mb-5" id="mainCarousel" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#mainCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+        </div>
+        <div class="carousel-inner rounded shadow">
+            <div class="carousel-item active">
+                <div class="bg-primary text-white d-flex align-items-center" style="height: 400px;">
+                    <div class="container">
+                        <h2>安全购物，放心体验</h2>
+                        <p>我们的电商平台采用先进的安全技术，为您的购物保驾护航</p>
+                        <a href="{{ url_for('shop.category', category_id=1) }}" class="btn btn-light">立即选购</a>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <div class="bg-success text-white d-flex align-items-center" style="height: 400px;">
+                    <div class="container">
+                        <h2>最新电子产品</h2>
+                        <p>发现科技前沿，享受智能生活</p>
+                        <a href="{{ url_for('shop.category', category_id=1) }}" class="btn btn-light">查看详情</a>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <div class="bg-danger text-white d-flex align-items-center" style="height: 400px;">
+                    <div class="container">
+                        <h2>限时特惠</h2>
+                        <p>精选商品，特价优惠，只为回馈用户</p>
+                        <a href="{{ url_for('shop.category', category_id=3) }}" class="btn btn-light">立即抢购</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#mainCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">上一个</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#mainCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">下一个</span>
+        </button>
+    </div>
+
+    <!-- 热门商品 -->
+    <h2 class="mb-4">热门商品</h2>
+    <div class="row">
+        {% for product in products %}
+            <div class="col-md-3 mb-4">
+                <div class="card h-100">
+                    {% if product.image %}
+                        <img src="{{ url_for('static', filename='uploads/' + product.image) }}" class="card-img-top" alt="{{ product.name }}">
+                    {% else %}
+                        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="bi bi-image text-secondary" style="font-size: 3rem;"></i>
+                        </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text text-primary">¥{{ product.price }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{{ url_for('shop.product_detail', product_id=product.id) }}" class="btn btn-outline-primary">查看详情</a>
+                            <form action="{{ url_for('cart.add_to_cart') }}" method="POST">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="product_id" value="{{ product.id }}">
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-cart-plus"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- 商品分类 -->
+    <h2 class="mb-4 mt-5">商品分类</h2>
+    <div class="row">
+        {% for category in categories %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ category.name }}</h5>
+                        <p class="card-text">{{ category.description }}</p>
+                        <a href="{{ url_for('shop.category', category_id=category.id) }}" class="btn btn-outline-primary">浏览商品</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

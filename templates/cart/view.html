@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}购物车{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">购物车</h1>
+
+    {% if cart_items %}
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th style="width: 50%">商品</th>
+                                <th class="text-center">单价</th>
+                                <th class="text-center">数量</th>
+                                <th class="text-end">小计</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in cart_items %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-shrink-0">
+                                            {% if item.image %}
+                                                <img src="{{ url_for('static', filename='img/' + item.image) }}" alt="{{ item.name }}" style="width: 60px; height: 60px; object-fit: cover;">
+                                            {% else %}
+                                                <img src="{{ url_for('static', filename='img/no-image.png') }}" alt="No Image" style="width: 60px; height: 60px; object-fit: cover;">
+                                            {% endif %}
+                                        </div>
+                                        <div class="ms-3">
+                                            <h6 class="mb-0">{{ item.name }}</h6>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center">¥{{ item.price }}</td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center align-items-center">
+                                        <!-- 单独使用两个表单，每个按钮对应一个操作 -->
+                                        <form action="{{ url_for('cart.update_quantity') }}" method="post" style="display: inline;">
+                                            <!-- 添加CSRF令牌 -->
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token else '' }}" />
+                                            <input type="hidden" name="product_id" value="{{ item.id }}">
+                                            <input type="hidden" name="action" value="decrease">
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary">-</button>
+                                        </form>
+
+                                        <span class="mx-2">{{ item.quantity }}</span>
+
+                                        <form action="{{ url_for('cart.update_quantity') }}" method="post" style="display: inline;">
+                                            <!-- 添加CSRF令牌 -->
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token else '' }}" />
+                                            <input type="hidden" name="product_id" value="{{ item.id }}">
+                                            <input type="hidden" name="action" value="increase">
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary">+</button>
+                                        </form>
+                                    </div>
+                                </td>
+                                <td class="text-end">¥{{ item.total }}</td>
+                                <td class="text-end">
+                                    <form action="{{ url_for('cart.remove_item') }}" method="post">
+                                        <!-- 添加CSRF令牌 -->
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token else '' }}" />
+                                        <input type="hidden" name="product_id" value="{{ item.id }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-trash"></i> 删除
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>总计：</strong></td>
+                                <td class="text-end"><strong>¥{{ cart_total }}</strong></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer bg-white d-flex justify-content-between">
+                <a href="{{ url_for('shop.index') }}" class="btn btn-outline-secondary">继续购物</a>
+                <a href="{{ url_for('cart.checkout') }}" class="btn btn-primary">去结算</a>
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <div class="mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
+                    <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                </svg>
+            </div>
+            <h3>您的购物车是空的</h3>
+            <p class="text-muted">去浏览商品，将喜欢的商品添加到购物车吧</p>
+            <a href="{{ url_for('shop.index') }}" class="btn btn-primary mt-3">浏览商品</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

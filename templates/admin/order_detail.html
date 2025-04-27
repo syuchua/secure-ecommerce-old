@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block title %}订单详情 #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>订单详情 #{{ order.id }}</h1>
+                <div>
+                    <a href="{{ url_for('admin.orders') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> 返回订单列表
+                    </a>
+                </div>
+            </div>
+
+            {% for category, message in get_flashed_messages(with_categories=true) %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">订单信息</h5>
+                    <div class="status-badge">
+                        {% if order.status == 'pending' %}
+                            <span class="badge bg-warning">待处理</span>
+                        {% elif order.status == 'processing' %}
+                            <span class="badge bg-info">处理中</span>
+                        {% elif order.status == 'shipped' %}
+                            <span class="badge bg-primary">已发货</span>
+                        {% elif order.status == 'delivered' %}
+                            <span class="badge bg-success">已送达</span>
+                        {% elif order.status == 'completed' %}
+                            <span class="badge bg-success">已完成</span>
+                        {% elif order.status == 'cancelled' %}
+                            <span class="badge bg-danger">已取消</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ order.status }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>订单编号:</strong> #{{ order.id }}</p>
+                            <p><strong>下单时间:</strong> {{ order.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                            <p>
+                                <strong>客户:</strong>
+                                {% if order.user %}
+                                    <a href="{{ url_for('admin.user_detail', user_id=order.user.id) }}">{{ order.user.username }}</a>
+                                {% else %}
+                                    游客
+                                {% endif %}
+                            </p>
+                            <p><strong>支付方式:</strong> {{ order.payment_method }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>订单状态:</strong>
+                                <form action="{{ url_for('admin.update_order_status', order_id=order.id) }}" method="post" class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token }}" />
+                                    <div class="input-group">
+                                        <select name="status" class="form-select">
+                                            <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>待处理</option>
+                                            <option value="processing" {% if order.status == 'processing' %}selected{% endif %}>处理中</option>
+                                            <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>已发货</option>
+                                            <option value="delivered" {% if order.status == 'delivered' %}selected{% endif %}>已送达</option>
+                                            <option value="completed" {% if order.status == 'completed' %}selected{% endif %}>已完成</option>
+                                            <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>已取消</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-primary">更新状态</button>
+                                    </div>
+                                </form>
+                            </p>
+                            <p><strong>订单总金额:</strong> ¥{{ "%.2f"|format(order.total) }}</p>
+                            <p><strong>物流编号:</strong> {{ order.tracking_number or '暂无' }}</p>
+                        </div>
+                    </div>
+
+                    <!-- 物流编号更新表单 -->
+                    <div class="mt-3">
+                        <form action="{{ url_for('admin.update_tracking', order_id=order.id) }}" method="post">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token }}" />
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="tracking_number" placeholder="输入物流编号" value="{{ order.tracking_number or '' }}">
+                                <button type="submit" class="btn btn-primary">更新物流信息</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">配送地址</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-1"><strong>收件人:</strong> {{ order.shipping_address_name }}</p>
+                    <p class="mb-1"><strong>电话:</strong> {{ order.shipping_address_phone }}</p>
+                    <p class="mb-1"><strong>地址:</strong> {{ order.shipping_address }}</p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">订单商品</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>商品</th>
+                                    <th>单价</th>
+                                    <th>数量</th>
+                                    <th class="text-end">小计</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0">
+                                                {% if item.product and item.product.image %}
+                                                    <img src="{{ url_for('static', filename='img/' + item.product.image) }}" alt="{{ item.product.name }}" style="width: 50px; height: 50px; object-fit: cover;">
+                                                {% else %}
+                                                    <img src="{{ url_for('static', filename='img/no-image.png') }}" alt="No Image" style="width: 50px; height: 50px; object-fit: cover;">
+                                                {% endif %}
+                                            </div>
+                                            <div class="ms-3">
+                                                {% if item.product %}
+                                                    <a href="{{ url_for('admin.product_detail', product_id=item.product.id) }}">{{ item.product.name }}</a>
+                                                {% else %}
+                                                    商品ID: {{ item.product_id }} (已删除)
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>¥{{ "%.2f"|format(item.price) }}</td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td class="text-end">¥{{ "%.2f"|format(item.price * item.quantity) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>总计:</strong></td>
+                                    <td class="text-end"><strong>¥{{ "%.2f"|format(order.total) }}</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 订单操作历史 -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">订单历史记录</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge bg-success">创建</span>
+                                    <span>订单已创建</span>
+                                </div>
+                                <small class="text-muted">{{ order.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+                            </div>
+                        </li>
+                        {% if order.status_history %}
+                            {% for history in order.status_history|sort(attribute='created_at', reverse=true) %}
+                            <li class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="badge bg-info">状态变更</span>
+                                        <span>订单状态变更为 "{{ history.status }}"</span>
+                                    </div>
+                                    <small class="text-muted">{{ history.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% from 'macros/forms.html' import csrf %}
+
+{% block title %}{{ product.name }} | 安全电商{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-5">
+            {% if product.image %}
+            <img src="{{ url_for('static', filename='uploads/' + product.image) }}" class="img-fluid rounded" alt="{{ product.name }}">
+            {% else %}
+            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 400px;">
+                <i class="bi bi-image text-secondary" style="font-size: 5rem;"></i>
+            </div>
+            {% endif %}
+        </div>
+        <div class="col-md-7">
+            <h1 class="mb-3">{{ product.name }}</h1>
+
+            <div class="mb-3">
+                <p class="fs-2 text-primary mb-0">¥{{ product.price }}</p>
+                <p class="text-muted">库存: {{ product.stock }}</p>
+            </div>
+
+            <div class="mb-4">
+                <p>{{ product.description }}</p>
+            </div>
+
+            <form action="{{ url_for('cart.add_to_cart') }}" method="POST">
+                {{ csrf() }}
+                <input type="hidden" name="product_id" value="{{ product.id }}">
+
+                <div class="input-group mb-3" style="max-width: 200px;">
+                    <span class="input-group-text">数量</span>
+                    <input type="number" class="form-control" name="quantity" value="1" min="1" max="{{ product.stock }}">
+                </div>
+
+                <div class="d-grid gap-2 d-md-block">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-cart-plus"></i> 加入购物车
+                    </button>
+                    <a href="{{ url_for('shop.category', category_id=product.category_id) }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> 返回
+                    </a>
+                </div>
+            </form>
+
+            <hr class="my-4">
+
+            <div>
+                <p><strong>分类:</strong> <a href="{{ url_for('shop.category', category_id=product.category_id) }}">{{ product.category.name }}</a></p>
+                <p><strong>商品编号:</strong> {{ product.id }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
