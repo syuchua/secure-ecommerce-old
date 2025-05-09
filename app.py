@@ -108,7 +108,7 @@ def create_app():
             admin = User(
                 username='admin',
                 email='admin@example.com',
-                password_hash=hash_password('password'),
+                password=hash_password('password'),
                 is_admin=True
             )
             db.session.add(admin)
@@ -117,7 +117,7 @@ def create_app():
             user = User(
                 username='user',
                 email='user@example.com',
-                password_hash=hash_password('password')
+                password=hash_password('password')
             )
             db.session.add(user)
 
@@ -125,7 +125,7 @@ def create_app():
             syuchua = User(
                 username='syuchua',
                 email='syuchua@example.com',
-                password_hash=hash_password('password')
+                password=hash_password('password')
             )
             db.session.add(syuchua)
 
@@ -245,4 +245,4 @@ def create_app():
 
 if __name__ == '__main__':
     app = create_app()
-    app.run()
+    app.run(debug=True, port=5001)

@@ -49,7 +49,7 @@ def view_cart():
                 'quantity': quantity,
                 'total': item_total
             })
-            cart_total += item_total
+            cart_total += float(item_total)
 
     return render_template('cart/view.html', cart_items=cart_items, cart_total=cart_total)
 
@@ -264,7 +264,7 @@ def checkout():
                 'quantity': quantity,
                 'total': item_total
             })
-            cart_total += item_total
+            cart_total += float(item_total)
 
     # 获取用户地址
     addresses = Address.query.filter_by(user_id=current_user.id).all()
